@@ -2,12 +2,10 @@
   "name": "boosts",
   "version": "1.0.0",
   "description": "CLI to calculate WoW arena boosting prices",
-  "main": "bin/index.js",
+  "main": "./bin/index.js",
   "repository": "github.com/cevr/boosts",
   "author": "cevr",
   "license": "MIT",
   "private": false,
-  "bin": {
-    "boosts": "./bin/boosts.js"
-  }
+  "bin": "./bin/index.js"
 }
