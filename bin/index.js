@@ -1,135 +1,135 @@
 #!/usr/bin/env node
-let [startRating, endRating, bracket] = process.argv.slice(2);
-
-startRating = parseInt(startRating);
-endRating = parseInt(endRating);
-
-const totalBrackets = endRating - startRating;
-
-if (startRating < 100) {
-  startRating *= 100;
-}
-if (endRating < 100) {
-  endRating *= 100;
-}
-
 const twos = [
   {
     rating: 1400,
-    rate: 200,
+    price: 200,
   },
   {
     rating: 1500,
-    rate: 250,
+    price: 250,
   },
   {
     rating: 1600,
-    rate: 330,
+    price: 330,
   },
   {
     rating: 1700,
-    rate: 480,
+    price: 480,
   },
   {
     rating: 1800,
-    rate: 550,
+    price: 550,
   },
   {
     rating: 1900,
-    rate: 700,
+    price: 700,
   },
   {
     rating: 2000,
-    rate: 800,
+    price: 800,
   },
 ];
 
 const threes = [
   {
     rating: 1400,
-    rate: 350,
+    price: 350,
   },
   {
     rating: 1500,
-    rate: 400,
+    price: 400,
   },
   {
     rating: 1600,
-    rate: 500,
+    price: 500,
   },
   {
     rating: 1700,
-    rate: 750,
+    price: 750,
   },
   {
     rating: 1800,
-    rate: 900,
+    price: 900,
   },
   {
     rating: 1900,
-    rate: 1000,
+    price: 1000,
   },
   {
     rating: 2000,
-    rate: 1300,
+    price: 1300,
   },
   {
     rating: 2100,
-    rate: 1600,
+    price: 1600,
   },
   {
     rating: 2200,
-    rate: 2000,
+    price: 2000,
   },
   {
     rating: 2300,
-    rate: 2500,
+    price: 2500,
   },
 ];
 
 const undercutPercentage = 0.9;
+const per100TwosPrice = 80;
+const per100ThreesPrice = 150;
 
-const log = (rate) => {
-  if (rate < 1000) {
-    console.log(`${Math.round(rate / 50) * 50}k`);
+const log = (price) => {
+  if (price < 1000) {
+    console.log(`${Math.round(price / 50) * 50}k`);
   } else {
-    console.log(`${(Math.round(rate / 50) * 50) / 1000}mil`);
+    console.log(`${(Math.round(price / 50) * 50) / 1000}mil`);
   }
 };
 
-const applyDiscounts = (rate) => {
+const applyDiscounts = (price, startRating, endRating) => {
+  const totalBrackets = (endRating - startRating) / 100;
   const bulkDeal = 1 - totalBrackets / 100;
-  return rate * undercutPercentage * bulkDeal;
+  return price * undercutPercentage * bulkDeal;
 };
 
-const reduceRates = (rates, startingRate) =>
-  rates.reduce((newRate, bracket) => {
+const getPrice = (prices, currentPrice, startRating, endRating) =>
+  prices.reduce((newPrice, bracket) => {
     if (startRating <= bracket.rating && endRating > bracket.rating) {
-      return newRate + bracket.rate;
+      return newPrice + bracket.price;
     }
-    return newRate;
-  }, startingRate);
+    return newPrice;
+  }, currentPrice);
 
-const per100TwosRate = 80;
-const per100ThreesRate = 150;
-
-const getLessThan1000Rate = (startRating, per100Rate) => {
+const getLessThan1400Price = (startRating, per100Price) => {
   const diffRating = 1400 - startRating;
-  return (diffRating / 100) * per100Rate;
+  return (diffRating / 100) * per100Price;
 };
 
-const calculate = () => {
+const calculate = (startRating, endRating, bracket) => {
   const isTwos = !bracket || bracket.includes("2");
-  let rate = 0;
+  let price = 0;
   if (startRating < 1400) {
-    rate = getLessThan1000Rate(
+    price = getLessThan1400Price(
       startRating,
-      isTwos ? per100TwosRate : per100ThreesRate
+      isTwos ? per100TwosPrice : per100ThreesPrice
     );
   }
-  rate = reduceRates(isTwos ? twos : threes, rate);
-  rate = applyDiscounts(rate);
-  log(rate);
+  price = getPrice(isTwos ? twos : threes, price, startRating, endRating);
+  price = applyDiscounts(price, startRating, endRating);
+  log(price);
 };
 
-calculate();
+function run(args) {
+  let [startRating, endRating, bracket] = args;
+
+  startRating = parseInt(startRating);
+  endRating = parseInt(endRating);
+
+  if (startRating < 100) {
+    startRating *= 100;
+  }
+  if (endRating < 100) {
+    endRating *= 100;
+  }
+  calculate(startRating, endRating, bracket);
+}
+run(process.argv.slice(2));
